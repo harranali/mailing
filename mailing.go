@@ -61,7 +61,7 @@ func NewMailerWithSendGrid(config *SMTPConfig) *Mailer {
 }
 
 // Initiate the mailer with MailGun driver
-func NewMMailerWithMailGun(config *SMTPConfig) *Mailer {
+func NewMailerWithMailGun(config *SMTPConfig) *Mailer {
 	// TODO implement
 	return &Mailer{}
 }
