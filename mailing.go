@@ -4,18 +4,21 @@
 
 package mailing
 
-import "net/mail"
+import (
+	"fmt"
+	"net/mail"
+)
 
 type Driver interface {
-	Send()
-	SetFrom(from mail.Address)
-	SetTo(toList []mail.Address)
-	SetCC(ccList []mail.Address)
-	SetBCC(bccList []mail.Address)
-	SetSubject(subject string)
-	SetHTMLBody(body string)
-	SetPlainTextBody(body string)
-	SetAttachments(attachments []Attachment)
+	Send() error
+	SetFrom(from mail.Address) *smtpDriver
+	SetTo(toList []mail.Address) *smtpDriver
+	SetCC(ccList []mail.Address) *smtpDriver
+	SetBCC(bccList []mail.Address) *smtpDriver
+	SetSubject(subject string) *smtpDriver
+	SetHTMLBody(body string) *smtpDriver
+	SetPlainTextBody(body string) *smtpDriver
+	SetAttachments(attachments []Attachment) *smtpDriver
 }
 
 type Mailer struct {
@@ -91,7 +94,7 @@ func (m *Mailer) SetCC(emailAddresses []EmailAddress) *Mailer {
 	return m
 }
 
-// List of cc of the email
+// List of bcc of the email
 func (m *Mailer) SetBCC(emailAddresses []EmailAddress) *Mailer {
 	var AddressesList []mail.Address
 	for _, v := range AddressesList {
@@ -133,7 +136,10 @@ func (m *Mailer) SetAttachments(attachments []Attachment) *Mailer {
 }
 
 // Send the email
-func (m *Mailer) Send() (bool, error) {
-	// TODO implement
-	return false, nil
+func (m *Mailer) Send() error {
+	return m.driver.Send()
+}
+
+func prepareAddressString(mailAddress mail.Address) string {
+	return fmt.Sprintf("%s<%s>", mailAddress.Name, mailAddress.Address)
 }
