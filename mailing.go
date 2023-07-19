@@ -40,25 +40,25 @@ type Attachment struct {
 }
 
 // Initiate the mailer with SMTP driver
-func NewSMTPMailer(config *SMTPConfig) *Mailer {
+func NewMailerWithSMTP(config *SMTPConfig) *Mailer {
 	smtpDriver := initiateSMTP(config)
 	return &Mailer{driver: smtpDriver}
 }
 
 // Initiate the mailer with SparkPost driver
-func NewSparkPostMailer(config *SMTPConfig) *Mailer {
+func NewMailerWithSparkPost(config *SMTPConfig) *Mailer {
 	// TODO implement
 	return &Mailer{}
 }
 
 // Initiate the mailer with SendGrid driver
-func NewSendGridMailer(config *SMTPConfig) *Mailer {
+func NewMailerWithSendGrid(config *SMTPConfig) *Mailer {
 	// TODO implement
 	return &Mailer{}
 }
 
 // Initiate the mailer with MailGun driver
-func NewMailGunMailer(config *SMTPConfig) *Mailer {
+func NewMMailerWithMailGun(config *SMTPConfig) *Mailer {
 	// TODO implement
 	return &Mailer{}
 }
