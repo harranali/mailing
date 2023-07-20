@@ -103,7 +103,7 @@ func (s *smtpDriver) Send() error {
 	}
 	writer, err := s.client.Data()
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	s.messageBuilder.setSubject(s.subject)
@@ -117,10 +117,25 @@ func (s *smtpDriver) Send() error {
 	s.messageBuilder.setCCList(s.ccList)
 	s.messageBuilder.setAttachments(s.attachments)
 	message := s.messageBuilder.build()
-	writer.Write([]byte(message))
-	writer.Close()
-	s.client.Quit()
-	s.client.Close()
-	s.conn.Close()
+	_, err = writer.Write(message)
+	if err != nil {
+		return err
+	}
+	err = writer.Close()
+	if err != nil {
+		return err
+	}
+	err = s.client.Quit()
+	if err != nil {
+		return err
+	}
+	err = s.client.Close()
+	if err != nil {
+		return err
+	}
+	err = s.conn.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
