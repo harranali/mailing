@@ -34,24 +34,27 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 
 // Set the Sender email address
 mailer.SetFrom(mailing.EmailAddress{
-        Name: "from name", 
+        Name: "from name", // name can be set to empty string ("")
         Address: "from@mail.com"
     })
 
 // Set the Recipients email addresses
 mailer.SetTo([]mailing.EmailAddress{
+        // name can be set to empty string ("")
         {Name: "first to name", Address: "theFirstTo@mail.com"},
         {Name: "second to name", Address: "theSecondTo@mail.com"},
     })
 
 // Set CC email addresses
 mailer.SetCC([]mailing.EmailAddress{
+        // name can be set to empty string ("")
         {Name: "cc name", Address: "cc1@mail.com"},
         {Name: "cc name", Address: "cc2@mail.com"},
     })
 
 // Set BCC email addresses
 mailer.SetBCC([]mailing.EmailAddress{
+        // name can be set to empty string ("")
         {Name: "bcc name", Address: "bcc@mail.com"},
     })
 
