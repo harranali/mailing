@@ -5,7 +5,6 @@
 package mailing
 
 import (
-	"fmt"
 	"net/mail"
 )
 
@@ -74,34 +73,34 @@ func (m *Mailer) SetFrom(emailAddress EmailAddress) *Mailer {
 
 // List of receivers of the email
 func (m *Mailer) SetTo(emailAddresses []EmailAddress) *Mailer {
-	var AddressesList []mail.Address
-	for _, v := range AddressesList {
-		AddressesList = append(AddressesList, mail.Address{Name: v.Name, Address: v.Address})
+	var addressesList []mail.Address
+	for _, v := range emailAddresses {
+		addressesList = append(addressesList, mail.Address{Name: v.Name, Address: v.Address})
 	}
 
-	m.driver.SetTo(AddressesList)
+	m.driver.SetTo(addressesList)
 	return m
 }
 
 // List of cc of the email
 func (m *Mailer) SetCC(emailAddresses []EmailAddress) *Mailer {
-	var AddressesList []mail.Address
-	for _, v := range AddressesList {
-		AddressesList = append(AddressesList, mail.Address{Name: v.Name, Address: v.Address})
+	var addressesList []mail.Address
+	for _, v := range emailAddresses {
+		addressesList = append(addressesList, mail.Address{Name: v.Name, Address: v.Address})
 	}
 
-	m.driver.SetCC(AddressesList)
+	m.driver.SetCC(addressesList)
 	return m
 }
 
 // List of bcc of the email
 func (m *Mailer) SetBCC(emailAddresses []EmailAddress) *Mailer {
-	var AddressesList []mail.Address
-	for _, v := range AddressesList {
-		AddressesList = append(AddressesList, mail.Address{Name: v.Name, Address: v.Address})
+	var addressesList []mail.Address
+	for _, v := range emailAddresses {
+		addressesList = append(addressesList, mail.Address{Name: v.Name, Address: v.Address})
 	}
 
-	m.driver.SetBCC(AddressesList)
+	m.driver.SetBCC(addressesList)
 	return m
 }
 
@@ -138,8 +137,4 @@ func (m *Mailer) SetAttachments(attachments []Attachment) *Mailer {
 // Send the email
 func (m *Mailer) Send() error {
 	return m.driver.Send()
-}
-
-func prepareAddressString(mailAddress mail.Address) string {
-	return fmt.Sprintf("%s<%s>", mailAddress.Name, mailAddress.Address)
 }
