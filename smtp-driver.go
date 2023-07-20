@@ -6,6 +6,7 @@ package mailing
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net/mail"
 	"net/smtp"
@@ -77,54 +78,7 @@ func (s *smtpDriver) SetAttachments(attachments []Attachment) *smtpDriver {
 }
 
 func (s *smtpDriver) Send() error {
-	// "to" and "cc" message sending
-	var rcpts []string
-	for _, v := range s.toList {
-		rcpts = append(rcpts, v.String())
-	}
-	for _, v := range s.ccList {
-		rcpts = append(rcpts, v.String())
-	}
-	err := s.initiateSend(rcpts)
-	if err != nil {
-		return err
-	}
-	// TODO implement sending the bcc message
-	// // send to bcc
-	// for _, v := range s.bccList {
-	// 	err = s.initiateSend([]string{v.String()})
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-	return nil
-}
-
-func (s *smtpDriver) initiateSend(rcpts []string) error {
-	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", s.config.Host, s.config.Port), &s.config.TLSConfig)
-	if err != nil {
-		panic(err.Error())
-	}
-	client, err := smtp.NewClient(conn, s.config.Host)
-	if err != nil {
-		panic(err.Error())
-	}
-	err = client.Auth(smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host))
-	if err != nil {
-		panic(err.Error())
-	}
-	client.Mail(s.from.String())
-	for _, emailAddress := range s.toList {
-		client.Rcpt(emailAddress.String())
-	}
-	for _, emailAddress := range s.ccList {
-		client.Rcpt(emailAddress.String())
-	}
-	writer, err := client.Data()
-	if err != nil {
-		return err
-	}
-	defer writer.Close()
+	// prepare the message
 	s.messageBuilder.setSubject(s.subject)
 	if s.htmlBody != "" {
 		s.messageBuilder.setHTMLBody(s.htmlBody)
@@ -136,10 +90,64 @@ func (s *smtpDriver) initiateSend(rcpts []string) error {
 	s.messageBuilder.setCCList(s.ccList)
 	s.messageBuilder.setAttachments(s.attachments)
 	message := s.messageBuilder.build()
+
+	// "to" and "cc" message sending
+	var rcpts []string
+	for _, v := range s.toList {
+		rcpts = append(rcpts, v.String())
+	}
+	for _, v := range s.ccList {
+		rcpts = append(rcpts, v.String())
+	}
+	err := s.initiateSend(rcpts, message)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
+	}
+
+	// send to bcc
+	for _, v := range s.bccList {
+		err = s.initiateSend([]string{v.String()}, message)
+		if err != nil {
+			return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
+		}
+	}
+	return nil
+}
+
+func (s *smtpDriver) initiateSend(rcpts []string, message []byte) error {
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", s.config.Host, s.config.Port), &s.config.TLSConfig)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error calling tls.Dial(): %v", err.Error()))
+	}
+	defer conn.Close()
+	client, err := smtp.NewClient(conn, s.config.Host)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error calling smtp.NewClient(): %v", err.Error()))
+	}
+	defer client.Close()
+	err = client.Auth(smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host))
+	if err != nil {
+		return errors.New(fmt.Sprintf("error calling SMTP's client.Auth(): %v", err.Error()))
+	}
+	client.Mail(s.from.String())
+	for _, emailAddress := range rcpts {
+		err = client.Rcpt(emailAddress)
+		if err != nil {
+			return errors.New(fmt.Sprintf("error calling rcpt(): %v", err.Error()))
+		}
+	}
+	writer, err := client.Data()
+	if err != nil {
+		return errors.New(fmt.Sprintf("error calling data(): %v", err.Error()))
+	}
 	_, err = writer.Write(message)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error calling writer.Close(): %v", err.Error()))
 	}
-	client.Quit()
+	writer.Close()
+	err = client.Quit()
+	if err != nil {
+		return errors.New(fmt.Sprintf("error quiting client: %v", err.Error()))
+	}
 	return nil
 }
