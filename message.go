@@ -46,14 +46,14 @@ func (m *messageBuilder) setPlainTextBody(body string) *messageBuilder {
 }
 
 func (m *messageBuilder) setFrom(from mail.Address) *messageBuilder {
-	m.from = prepareAddressString(from)
+	m.from = from.String()
 	return m
 }
 
 func (m *messageBuilder) setToList(toList []mail.Address) *messageBuilder {
 	var toListStr []string
 	for _, v := range toList {
-		toListStr = append(toListStr, prepareAddressString(v))
+		toListStr = append(toListStr, v.String())
 	}
 	m.toList = toListStr
 	return m
@@ -62,7 +62,7 @@ func (m *messageBuilder) setToList(toList []mail.Address) *messageBuilder {
 func (m *messageBuilder) setCCList(ccList []mail.Address) *messageBuilder {
 	var ccListStr []string
 	for _, v := range ccList {
-		ccListStr = append(ccListStr, prepareAddressString(v))
+		ccListStr = append(ccListStr, v.String())
 	}
 	m.ccList = ccListStr
 	return m
@@ -77,21 +77,20 @@ func (m *messageBuilder) build() []byte {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", m.from))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(m.toList, ";")))
-	if len(m.ccList) > 0 {
-		buf.WriteString(fmt.Sprintf("CC: %s\r\n", strings.Join(m.ccList, ";")))
-	}
+	fmt.Println(m.toList)
+	buf.WriteString(fmt.Sprintf("CC: %s\r\n", strings.Join(m.ccList, ";")))
 	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", m.subject))
 	writer := multipart.NewWriter(buf)
 	boundary := writer.Boundary()
 	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s", boundary))
+	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=\"%s\"\r\n", boundary))
 	if m.htmlBody != "" {
 		buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
-		buf.WriteString("Content-Type: text/html; charset=UTF-8")
+		buf.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
 		buf.WriteString(m.htmlBody)
 	} else {
 		buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
-		buf.WriteString("Content-Type: text/plain; charset=UTF-8")
+		buf.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
 		buf.WriteString(m.plainTextBody)
 	}
 	if len(m.attachments) > 0 {
@@ -105,9 +104,9 @@ func (m *messageBuilder) build() []byte {
 				panic(err.Error())
 			}
 			buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
-			buf.WriteString(fmt.Sprintf("Content-Type: %s", http.DetectContentType(fileContent)))
+			buf.WriteString(fmt.Sprintf("Content-Type: \"%s\"\r\n", http.DetectContentType(fileContent)))
 			buf.WriteString("Content-Transfer-Encoding: base64\r\n")
-			buf.WriteString(fmt.Sprintf("Content-Disposition: attachment; filename=%s", attachment.Name))
+			buf.WriteString(fmt.Sprintf("Content-Disposition: attachment; filename=\"%s\"\r\n", attachment.Name))
 
 			b := make([]byte, base64.StdEncoding.EncodedLen(len(fileContent)))
 			base64.StdEncoding.Encode(b, fileContent)
@@ -115,6 +114,7 @@ func (m *messageBuilder) build() []byte {
 			file.Close()
 		}
 	}
-	buf.WriteString(fmt.Sprintf("\r\n--%s--", boundary))
+	buf.WriteString(fmt.Sprintf("\r\n--%s--\r\n", boundary))
+	fmt.Println(buf.String())
 	return buf.Bytes()
 }
