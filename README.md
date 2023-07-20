@@ -13,7 +13,7 @@
 - Multiple Drivers Support: SMTP, SparkPost, SendGrid and MailGun
 
 ## Install
-Here is how to add it to `go.mod` in your project
+Here is how to add it to your project
 ```go
 go get github.com/harranali/mailing
 ```
