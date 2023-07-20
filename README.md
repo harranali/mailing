@@ -28,7 +28,7 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 		Password: "",
 		TLSConfig: tls.Config{
 			ServerName:         "localhost",
-			InsecureSkipVerify: true, // accept any certificate presented by the server (development only)
+			InsecureSkipVerify: true, // (use true for development only) true accepts any certificate presented by the server
 		},
 	})
 
