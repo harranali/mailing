@@ -85,11 +85,11 @@ func (m *messageBuilder) build() []byte {
 	buf.WriteString("MIME-Version: 1.0\r\n")
 	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=\"%s\"\r\n", boundary))
 	if m.htmlBody != "" {
-		buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
+		buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
 		buf.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
 		buf.WriteString(m.htmlBody)
 	} else {
-		buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
+		buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
 		buf.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
 		buf.WriteString(m.plainTextBody)
 	}
@@ -103,7 +103,7 @@ func (m *messageBuilder) build() []byte {
 			if err != nil {
 				panic(err.Error())
 			}
-			buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
+			buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
 			buf.WriteString(fmt.Sprintf("Content-Type: \"%s\"\r\n", http.DetectContentType(fileContent)))
 			buf.WriteString("Content-Transfer-Encoding: base64\r\n")
 			buf.WriteString(fmt.Sprintf("Content-Disposition: attachment; filename=\"%s\"\r\n", attachment.Name))
