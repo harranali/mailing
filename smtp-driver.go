@@ -20,8 +20,7 @@ type SMTPConfig struct {
 }
 
 type smtpDriver struct {
-	conn           *tls.Conn
-	client         *smtp.Client
+	config         *SMTPConfig
 	messageBuilder *messageBuilder
 	from           mail.Address
 	toList         []mail.Address
@@ -34,21 +33,8 @@ type smtpDriver struct {
 }
 
 func initiateSMTP(config *SMTPConfig) *smtpDriver {
-	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", config.Host, config.Port), &config.TLSConfig)
-	if err != nil {
-		panic(err.Error())
-	}
-	client, err := smtp.NewClient(conn, config.Host)
-	if err != nil {
-		panic(err.Error())
-	}
-	err = client.Auth(smtp.PlainAuth("", config.Username, config.Password, config.Host))
-	if err != nil {
-		panic(err.Error())
-	}
 	return &smtpDriver{
-		conn:           conn,
-		client:         client,
+		config:         config,
 		messageBuilder: newMessageBuilder(),
 		htmlBody:       "",
 		plainTextBody:  "",
@@ -91,21 +77,54 @@ func (s *smtpDriver) SetAttachments(attachments []Attachment) *smtpDriver {
 }
 
 func (s *smtpDriver) Send() error {
-	s.client.Mail(prepareAddressString(s.from))
-	for _, emailAddress := range s.toList {
-		s.client.Rcpt(prepareAddressString(emailAddress))
+	// "to" and "cc" message sending
+	var rcpts []string
+	for _, v := range s.toList {
+		rcpts = append(rcpts, v.String())
 	}
-	for _, emailAddress := range s.ccList {
-		s.client.Rcpt(prepareAddressString(emailAddress))
+	for _, v := range s.ccList {
+		rcpts = append(rcpts, v.String())
 	}
-	for _, emailAddress := range s.bccList {
-		s.client.Rcpt(prepareAddressString(emailAddress))
-	}
-	writer, err := s.client.Data()
+	err := s.initiateSend(rcpts)
 	if err != nil {
 		return err
 	}
+	// TODO implement sending the bcc message
+	// // send to bcc
+	// for _, v := range s.bccList {
+	// 	err = s.initiateSend([]string{v.String()})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+	return nil
+}
 
+func (s *smtpDriver) initiateSend(rcpts []string) error {
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", s.config.Host, s.config.Port), &s.config.TLSConfig)
+	if err != nil {
+		panic(err.Error())
+	}
+	client, err := smtp.NewClient(conn, s.config.Host)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = client.Auth(smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host))
+	if err != nil {
+		panic(err.Error())
+	}
+	client.Mail(s.from.String())
+	for _, emailAddress := range s.toList {
+		client.Rcpt(emailAddress.String())
+	}
+	for _, emailAddress := range s.ccList {
+		client.Rcpt(emailAddress.String())
+	}
+	writer, err := client.Data()
+	if err != nil {
+		return err
+	}
+	defer writer.Close()
 	s.messageBuilder.setSubject(s.subject)
 	if s.htmlBody != "" {
 		s.messageBuilder.setHTMLBody(s.htmlBody)
@@ -121,21 +140,6 @@ func (s *smtpDriver) Send() error {
 	if err != nil {
 		return err
 	}
-	err = writer.Close()
-	if err != nil {
-		return err
-	}
-	err = s.client.Quit()
-	if err != nil {
-		return err
-	}
-	err = s.client.Close()
-	if err != nil {
-		return err
-	}
-	err = s.conn.Close()
-	if err != nil {
-		return err
-	}
+	client.Quit()
 	return nil
 }
