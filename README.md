@@ -16,6 +16,13 @@
 - Easy integration with [smtp4dev](https://github.com/rnwood/smtp4dev/tree/master) testing server for development
 - Multiple Drivers Support: SMTP, SparkPost, SendGrid and MailGun
 
+## Roadmap
+- [x] SMTP Driver
+- [ ] SparkPost Driver
+- [ ] SendGrid Driver
+- [ ] MailGun Driver
+
+
 ## Install
 Here is how to add it to your project
 ```go
