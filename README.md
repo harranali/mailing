@@ -1,5 +1,12 @@
 # A Golang package for sending emails using SMTP, SparkPost, SendGrid and MailGun
 
+![Build Status](https://github.com/harranali/mailing/actions/workflows/build-main.yml/badge.svg)
+![Test Status](https://github.com/harranali/mailing/actions/workflows/test-main.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/harranali/mailing)](https://goreportcard.com/report/github.com/harranali/mailing)
+[![GoDoc](https://godoc.org/github.com/harranali/mailing?status.svg)](https://godoc.org/github.com/harranali/mailing)
+[![Coverage Status](https://coveralls.io/repos/github/harranali/mailing/badge.svg?branch=main)](https://coveralls.io/github/harranali/mailing?branch=main&cache=false)
+
+
 ## [Under Development]
 
 ## Features
