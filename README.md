@@ -111,4 +111,4 @@ The testing server `UI` allows you to check the emails, here is a link to the ui
 ```go
 http://localhost:5000
 ```
-![smtp4dev server ui](https://github.com/harranali/mailing/tree/main/smtp-testing-server/screenshots/smtp4dev-server-ui.png "smtp server ui")
+![smtp4dev server ui](https://raw.githubusercontent.com/harranali/mailing/main/smtp-testing-server/screenshots/smtp4dev-server-ui.png "smtp server ui")
