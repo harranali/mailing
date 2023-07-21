@@ -6,9 +6,6 @@
 [![GoDoc](https://godoc.org/github.com/harranali/mailing?status.svg)](https://godoc.org/github.com/harranali/mailing)
 [![Coverage Status](https://coveralls.io/repos/github/harranali/mailing/badge.svg?branch=main)](https://coveralls.io/github/harranali/mailing?branch=main&cache=false)
 
-
-## [Under Development]
-
 ## Features
 - Multiple File attachments
 - Multiple recipients
