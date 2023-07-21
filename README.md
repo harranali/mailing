@@ -85,7 +85,7 @@ if err != nil {
 }
 ```
 
-## Testing you emails with SMTP Testing Server
+## Testing you emails with smtp4dev SMTP Testing Server
 While developing your app you might need to test your emails, for that a `docker-compose.yaml` for an SMTP testing server is included [you can find the docker file here](https://github.com/harranali/mailing/tree/main/smtp-testing-server). it's based on the project [smtp4dev](https://github.com/rnwood/smtp4dev/tree/master), big thank you to [Rob Wood](https://github.com/rnwood) for maintaing such useful project.
 #### Running the testing server
 Copy the [docker-compose.yaml](https://github.com/harranali/mailing/blob/main/smtp-testing-server/docker-compose.yaml) to your pc, then start the container by running
@@ -106,3 +106,9 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 		},
 	})
 ```
+#### Accessing the testing server UI
+The testing server `UI` allows you to check the emails, here is a link to the ui of the testing server
+```go
+http://localhost:5000
+```
+![smtp4dev server ui](https://github.com/harranali/mailing/tree/main/smtp-testing-server/screenshots/smtp4dev-server-ui.png "smtp server ui")
