@@ -22,7 +22,7 @@ Here is how to use it
 ```go
 // Initiate the package with SMTP Driver
 mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
-		Host:     "localhost", //the SMTP host
+		Host:     "localhost", //the SMTP server host
 		Port:     25, // The Port
 		Username: "", 
 		Password: "",
@@ -83,4 +83,26 @@ err := mailer.Send()
 if err != nil {
     panic(err.Error())
 }
+```
+
+## Testing you emails with SMTP Testing Server
+While developing your app you might need to test your emails, for that a `docker-compose.yaml` for an SMTP testing server is included [you can find it here](https://github.com/harranali/mailing/tree/main/smtp-testing-server). it's based on the project [smtp4dev](https://github.com/rnwood/smtp4dev/tree/master), big thank you to [Rob Wood](https://github.com/rnwood) for maintaing such usful project.
+#### Running the testing server
+Copy the [docker-compose.yaml](https://github.com/harranali/mailing/blob/main/smtp-testing-server/docker-compose.yaml) to your pc, then start the container by running
+```go
+docker-compose up
+```
+#### The testing server configuration
+Here is how to connect to the testing server
+```go
+mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
+		Host:     "localhost", //the SMTP server host
+		Port:     25, // The Port
+		Username: "", 
+		Password: "",
+		TLSConfig: tls.Config{
+			ServerName:         "localhost",
+			InsecureSkipVerify: true, // (use true for development only) true accepts any certificate presented by the server
+		},
+	})
 ```
