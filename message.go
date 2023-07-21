@@ -115,6 +115,5 @@ func (m *messageBuilder) build() []byte {
 		}
 	}
 	buf.WriteString(fmt.Sprintf("\r\n--%s--\r\n", boundary))
-	fmt.Println(buf.String())
 	return buf.Bytes()
 }
