@@ -66,9 +66,6 @@ func TestBuild(t *testing.T) {
 	if !strings.Contains(message, `Content-Disposition: attachment; filename="attachment name1"`) {
 		t.Error("Failed test build")
 	}
-	if !strings.Contains(message, `Content-Disposition: attachment; filename="attachment name1"`) {
-		t.Error("Failed test build")
-	}
 	if !strings.Contains(message, `dGhpcyBpcyBhIHRlc3QgZmlsZSBmb3IgZW1haWwgYXR0YWNobWVudCAx`) {
 		t.Error("Failed test build")
 	}
