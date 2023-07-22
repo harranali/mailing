@@ -18,7 +18,7 @@
 
 ## Roadmap
 - [x] SMTP Driver
-- [ ] SparkPost Driver
+- [x] SparkPost Driver
 - [ ] SendGrid Driver
 - [ ] MailGun Driver
 
@@ -28,6 +28,32 @@ Here is how to add it to your project
 ```go
 go get github.com/harranali/mailing
 ```
+
+## Using specific driver
+##### Here is how to use SMTP Driver 
+```go
+// initiating the mailer with smtp driver
+mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
+		Host:     "localhost", //the SMTP server host
+		Port:     25, // The Port
+		Username: "", 
+		Password: "",
+		TLSConfig: tls.Config{
+			ServerName:         "localhost",
+			InsecureSkipVerify: true, // (use true for development only) true accepts any certificate presented by the server
+		},
+	})
+```
+##### Here is how to use SparkPost Driver 
+```go
+// initiating the mailer with SparkPost driver
+mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
+		BaseUrl:    "https://api.sparkpost.com",
+		ApiKey:     "test-api-key",
+		ApiVersion: 1,
+	})
+```
+
 ## Usage
 Here is how to use it
 ```go

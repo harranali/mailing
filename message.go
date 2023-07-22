@@ -77,7 +77,7 @@ func (m *messageBuilder) build() []byte {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", m.from))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(m.toList, ";")))
-	buf.WriteString(fmt.Sprintf("CC: %s\r\n", strings.Join(m.ccList, ";")))
+	buf.WriteString(fmt.Sprintf("Cc: %s\r\n", strings.Join(m.ccList, ";")))
 	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", m.subject))
 	writer := multipart.NewWriter(buf)
 	boundary := writer.Boundary()
@@ -114,5 +114,12 @@ func (m *messageBuilder) build() []byte {
 		}
 	}
 	buf.WriteString(fmt.Sprintf("\r\n--%s--\r\n", boundary))
+	m.resetMessageProps()
 	return buf.Bytes()
+}
+
+func (m *messageBuilder) resetMessageProps() {
+	m.subject = ""
+	m.htmlBody = ""
+	m.plainTextBody = ""
 }

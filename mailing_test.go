@@ -2,8 +2,25 @@ package mailing
 
 import (
 	"crypto/tls"
+	"fmt"
 	"testing"
 )
+
+func TestNewMailerWithSMTP(t *testing.T) {
+	mailer := NewMailerWithSMTP(&SMTPConfig{
+		Host:     "localhost",
+		Port:     25,
+		Username: "",
+		Password: "",
+		TLSConfig: tls.Config{
+			ServerName:         "localhost",
+			InsecureSkipVerify: true,
+		},
+	})
+	if fmt.Sprintf("%T", mailer) != "*mailing.Mailer" {
+		t.Error("failed testing NewMailerWithSMTP")
+	}
+}
 
 func TestMailingParamSetters(t *testing.T) {
 	mailer := NewMailerWithSMTP(&SMTPConfig{
@@ -62,6 +79,14 @@ func TestMailingParamSetters(t *testing.T) {
 		panic("failed testing mailing parameters setting")
 	}
 	if len(dr.attachments) != 2 {
+		panic("failed testing mailing parameters setting")
+	}
+	mailer.SetHTMLBody("")
+	mailer.SetPlainTextBody("this is plain text body")
+	if dr.htmlBody != "" {
+		panic("failed testing mailing parameters setting")
+	}
+	if dr.plainTextBody != "this is plain text body" {
 		panic("failed testing mailing parameters setting")
 	}
 }

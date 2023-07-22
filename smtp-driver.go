@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+
+	"github.com/google/uuid"
 )
 
 type SMTPConfig struct {
@@ -31,45 +33,47 @@ type smtpDriver struct {
 	htmlBody       string
 	plainTextBody  string
 	attachments    []Attachment
-	initiateSend   func(from string, rcpts []string, message []byte, conf SMTPConfig) error
+	initiateSend   func(from string, rcpts []string, message []byte, d Driver) (id string, err error)
 }
 
-var initiateSend = func(from string, rcpts []string, message []byte, conf SMTPConfig) error {
+var smtpInitiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
+	smtpDriv := d.(*smtpDriver)
+	conf := smtpDriv.config
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", conf.Host, conf.Port), &conf.TLSConfig)
 	if err != nil {
-		return errors.New(fmt.Sprintf("error calling tls.Dial(): %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error calling tls.Dial(): %v", err.Error()))
 	}
 	defer conn.Close()
 	client, err := smtp.NewClient(conn, conf.Host)
 	if err != nil {
-		return errors.New(fmt.Sprintf("error calling smtp.NewClient(): %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error calling smtp.NewClient(): %v", err.Error()))
 	}
 	defer client.Close()
 	err = client.Auth(smtp.PlainAuth("", conf.Username, conf.Password, conf.Host))
 	if err != nil {
-		return errors.New(fmt.Sprintf("error calling SMTP's client.Auth(): %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error calling SMTP's client.Auth(): %v", err.Error()))
 	}
 	client.Mail(from)
 	for _, emailAddress := range rcpts {
 		err = client.Rcpt(emailAddress)
 		if err != nil {
-			return errors.New(fmt.Sprintf("error calling rcpt(): %v", err.Error()))
+			return "", errors.New(fmt.Sprintf("error calling rcpt(): %v", err.Error()))
 		}
 	}
 	writer, err := client.Data()
 	if err != nil {
-		return errors.New(fmt.Sprintf("error calling data(): %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error calling data(): %v", err.Error()))
 	}
 	_, err = writer.Write(message)
 	if err != nil {
-		return errors.New(fmt.Sprintf("error calling writer.Close(): %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error calling writer.Close(): %v", err.Error()))
 	}
 	writer.Close()
 	err = client.Quit()
 	if err != nil {
-		return errors.New(fmt.Sprintf("error quiting client: %v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error quiting client: %v", err.Error()))
 	}
-	return nil
+	return uuid.NewString(), nil
 }
 
 func initiateSMTP(config *SMTPConfig) *smtpDriver {
@@ -78,45 +82,45 @@ func initiateSMTP(config *SMTPConfig) *smtpDriver {
 		messageBuilder: newMessageBuilder(),
 		htmlBody:       "",
 		plainTextBody:  "",
-		initiateSend:   initiateSend,
+		initiateSend:   smtpInitiateSend,
 	}
 
 	return s
 }
 
-func (s *smtpDriver) SetFrom(from mail.Address) *smtpDriver {
+func (s *smtpDriver) SetFrom(from mail.Address) error {
 	s.from = from
-	return s
+	return nil
 }
 
-func (s *smtpDriver) SetTo(toList []mail.Address) *smtpDriver {
+func (s *smtpDriver) SetTo(toList []mail.Address) error {
 	s.toList = toList
-	return s
+	return nil
 }
 
-func (s *smtpDriver) SetCC(ccList []mail.Address) *smtpDriver {
+func (s *smtpDriver) SetCC(ccList []mail.Address) error {
 	s.ccList = ccList
-	return s
+	return nil
 }
-func (s *smtpDriver) SetBCC(bccList []mail.Address) *smtpDriver {
+func (s *smtpDriver) SetBCC(bccList []mail.Address) error {
 	s.bccList = bccList
-	return s
+	return nil
 }
-func (s *smtpDriver) SetSubject(Subject string) *smtpDriver {
+func (s *smtpDriver) SetSubject(Subject string) error {
 	s.subject = Subject
-	return s
+	return nil
 }
-func (s *smtpDriver) SetHTMLBody(body string) *smtpDriver {
+func (s *smtpDriver) SetHTMLBody(body string) error {
 	s.htmlBody = body
-	return s
+	return nil
 }
-func (s *smtpDriver) SetPlainTextBody(body string) *smtpDriver {
+func (s *smtpDriver) SetPlainTextBody(body string) error {
 	s.plainTextBody = body
-	return s
+	return nil
 }
-func (s *smtpDriver) SetAttachments(attachments []Attachment) *smtpDriver {
+func (s *smtpDriver) SetAttachments(attachments []Attachment) error {
 	s.attachments = attachments
-	return s
+	return nil
 }
 
 func (s *smtpDriver) Send() error {
@@ -142,17 +146,24 @@ func (s *smtpDriver) Send() error {
 		rcpts = append(rcpts, v.String())
 	}
 	from := s.from.String()
-	err := s.initiateSend(from, rcpts, message, *s.config)
+	_, err := s.initiateSend(from, rcpts, message, s)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 	}
 
 	// send to bcc
 	for _, v := range s.bccList {
-		err = s.initiateSend(from, []string{v.String()}, message, *s.config)
+		_, err = s.initiateSend(from, []string{v.String()}, message, s)
 		if err != nil {
 			return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 		}
 	}
+	s.resetDriverProps()
 	return nil
+}
+
+func (s *smtpDriver) resetDriverProps() {
+	s.subject = ""
+	s.htmlBody = ""
+	s.plainTextBody = ""
 }

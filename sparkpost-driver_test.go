@@ -1,7 +1,6 @@
 package mailing
 
 import (
-	"crypto/tls"
 	"errors"
 	"io/ioutil"
 	"net/mail"
@@ -13,16 +12,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestSMTPDriverSend(t *testing.T) {
-	sDriver := initiateSMTP(&SMTPConfig{
-		Host:     "localhost",
-		Port:     25,
-		Username: "",
-		Password: "",
-		TLSConfig: tls.Config{
-			ServerName:         "localhost",
-			InsecureSkipVerify: true,
-		},
+func TestSparkPostDriverSend(t *testing.T) {
+	sDriver := initiateSparkPost(&SparkPostConfig{
+		BaseUrl:    "https://api.sparkpost.com",
+		ApiKey:     "test-api-key",
+		ApiVersion: 1,
 	})
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
 	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
