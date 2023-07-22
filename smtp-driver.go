@@ -154,5 +154,12 @@ func (s *smtpDriver) Send() error {
 			return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 		}
 	}
+	s.resetDriverProps()
 	return nil
+}
+
+func (s *smtpDriver) resetDriverProps() {
+	s.subject = ""
+	s.htmlBody = ""
+	s.plainTextBody = ""
 }

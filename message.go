@@ -114,5 +114,12 @@ func (m *messageBuilder) build() []byte {
 		}
 	}
 	buf.WriteString(fmt.Sprintf("\r\n--%s--\r\n", boundary))
+	m.resetMessageProps()
 	return buf.Bytes()
+}
+
+func (m *messageBuilder) resetMessageProps() {
+	m.subject = ""
+	m.htmlBody = ""
+	m.plainTextBody = ""
 }

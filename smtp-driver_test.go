@@ -2,6 +2,7 @@ package mailing
 
 import (
 	"crypto/tls"
+	"errors"
 	"io/ioutil"
 	"net/mail"
 	"os"
@@ -26,11 +27,11 @@ func TestSend(t *testing.T) {
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
 	sDriver.initiateSend = func(from string, rcpts []string, message []byte, conf SMTPConfig) error {
 		file, err := os.Create(tmpFilePath)
-		defer file.Close()
 		if err != nil {
 			t.Error("faild test send")
 		}
 		file.Write(message)
+		file.Close()
 		return nil
 	}
 
@@ -63,9 +64,14 @@ func TestSend(t *testing.T) {
 			Path: "./testingdata/attachment2.md",
 		},
 	})
-	sDriver.Send()
+	err := sDriver.Send()
+	if err != nil {
+		t.Error("failed testing send")
+	}
 	file, _ := os.Open(tmpFilePath)
 	mBytes, _ := ioutil.ReadAll(file)
+	file.Close()
+	os.Truncate(tmpFilePath, 0)
 	m := string(mBytes)
 
 	if !strings.Contains(m, `From: "test from name" <from@mail.com>`) {
@@ -97,5 +103,29 @@ func TestSend(t *testing.T) {
 	}
 	if !strings.Contains(m, `dGhpcyBpcyBhIHRlc3QgZmlsZSBmb3IgZW1haWwgYXR0YWNobWVudCAy`) {
 		t.Error("Failed test send")
+	}
+
+	sDriver.SetHTMLBody("")
+	sDriver.SetPlainTextBody("this is plain text body")
+	err = sDriver.Send()
+	if err != nil {
+		t.Error("failed testing send")
+	}
+	file, _ = os.Open(tmpFilePath)
+	mBytes, _ = ioutil.ReadAll(file)
+	m = string(mBytes)
+	if !strings.Contains(m, `Content-Type: text/plain; charset="UTF-8"`) {
+		t.Error("Failed test send")
+	}
+	if !strings.Contains(m, `this is plain text body`) {
+		t.Error("Failed test send")
+	}
+
+	sDriver.initiateSend = func(from string, rcpts []string, message []byte, conf SMTPConfig) error {
+		return errors.New("this is a test error")
+	}
+	err = sDriver.Send()
+	if err == nil {
+		t.Error("failed testing send")
 	}
 }
