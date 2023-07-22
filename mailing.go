@@ -10,14 +10,14 @@ import (
 
 type Driver interface {
 	Send() error
-	SetFrom(from mail.Address) *smtpDriver
-	SetTo(toList []mail.Address) *smtpDriver
-	SetCC(ccList []mail.Address) *smtpDriver
-	SetBCC(bccList []mail.Address) *smtpDriver
-	SetSubject(subject string) *smtpDriver
-	SetHTMLBody(body string) *smtpDriver
-	SetPlainTextBody(body string) *smtpDriver
-	SetAttachments(attachments []Attachment) *smtpDriver
+	SetFrom(from mail.Address) error
+	SetTo(toList []mail.Address) error
+	SetCC(ccList []mail.Address) error
+	SetBCC(bccList []mail.Address) error
+	SetSubject(subject string) error
+	SetHTMLBody(body string) error
+	SetPlainTextBody(body string) error
+	SetAttachments(attachments []Attachment) error
 }
 
 type Mailer struct {

@@ -25,14 +25,14 @@ func TestSend(t *testing.T) {
 		},
 	})
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, conf SMTPConfig) error {
+	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
 		file, err := os.Create(tmpFilePath)
 		if err != nil {
 			t.Error("faild test send")
 		}
 		file.Write(message)
 		file.Close()
-		return nil
+		return uuid.NewString(), nil
 	}
 
 	sDriver.SetFrom(mail.Address{
@@ -80,7 +80,7 @@ func TestSend(t *testing.T) {
 	if !strings.Contains(m, `To: "test from name1" <from1@mail.com>;"test from name2" <from2@mail.com>`) {
 		t.Error("Failed test send")
 	}
-	if !strings.Contains(m, `CC: "test cc name1" <cc1@mail.com>;"test cc name2" <cc2@mail.com>`) {
+	if !strings.Contains(m, `Cc: "test cc name1" <cc1@mail.com>;"test cc name2" <cc2@mail.com>`) {
 		t.Error("Failed test send")
 	}
 	if !strings.Contains(m, `Subject: this is the subject`) {
@@ -121,8 +121,8 @@ func TestSend(t *testing.T) {
 		t.Error("Failed test send")
 	}
 
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, conf SMTPConfig) error {
-		return errors.New("this is a test error")
+	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
+		return "", errors.New("this is a test error")
 	}
 	err = sDriver.Send()
 	if err == nil {

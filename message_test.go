@@ -51,7 +51,7 @@ func TestBuild(t *testing.T) {
 	if !strings.Contains(message, `To: "to test name1" <to1@mail.com>;"to test name2" <to2@mail.com>`) {
 		t.Error("Failed test build")
 	}
-	if !strings.Contains(message, `CC: "tcc test name1" <cc1@mail.com>;"cc test name2" <cc2@mail.com>`) {
+	if !strings.Contains(message, `Cc: "tcc test name1" <cc1@mail.com>;"cc test name2" <cc2@mail.com>`) {
 		t.Error("Failed test build")
 	}
 	if !strings.Contains(message, `Subject: the subject`) {
