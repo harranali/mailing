@@ -14,9 +14,9 @@ import (
 )
 
 type SparkPostConfig struct {
-	BaseUrl    string
-	ApiKey     string
-	ApiVersion int
+	BaseUrl    string // example: https://api.sparkpost.com
+	ApiKey     string // SPARKPOST_API_KEY
+	ApiVersion int    // example: 1
 }
 
 type SparkPostDriver struct {

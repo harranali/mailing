@@ -48,9 +48,9 @@ func NewMailerWithSMTP(config *SMTPConfig) *Mailer {
 }
 
 // Initiate the mailer with SparkPost driver
-func NewMailerWithSparkPost(config *SMTPConfig) *Mailer {
-	// TODO implement
-	return &Mailer{}
+func NewMailerWithSparkPost(config *SparkPostConfig) *Mailer {
+	sparkPostDriver := initiateSparkPost(config)
+	return &Mailer{driver: sparkPostDriver}
 }
 
 // Initiate the mailer with SendGrid driver
