@@ -22,6 +22,17 @@ func TestNewMailerWithSMTP(t *testing.T) {
 	}
 }
 
+func TestNewMailerWithSparkPost(t *testing.T) {
+	mailer := NewMailerWithSparkPost(&SparkPostConfig{
+		BaseUrl:    "https://api.sparkpost.com",
+		ApiKey:     "test-api-key",
+		ApiVersion: 1,
+	})
+	if fmt.Sprintf("%T", mailer) != "*mailing.Mailer" {
+		t.Error("failed testing NewMailerWithSMTP")
+	}
+}
+
 func TestMailingParamSetters(t *testing.T) {
 	mailer := NewMailerWithSMTP(&SMTPConfig{
 		Host:     "localhost",
