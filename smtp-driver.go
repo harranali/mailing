@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
-
-	"github.com/google/uuid"
 )
 
 type SMTPConfig struct {
@@ -33,47 +31,47 @@ type smtpDriver struct {
 	htmlBody       string
 	plainTextBody  string
 	attachments    []Attachment
-	initiateSend   func(from string, rcpts []string, message []byte, d Driver) (id string, err error)
+	initiateSend   func(from string, rcpts []string, message []byte, d Driver) error
 }
 
-var smtpInitiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
+var smtpInitiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
 	smtpDriv := d.(*smtpDriver)
 	conf := smtpDriv.config
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", conf.Host, conf.Port), &conf.TLSConfig)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error calling tls.Dial(): %v", err.Error()))
+		return errors.New(fmt.Sprintf("error calling tls.Dial(): %v", err.Error()))
 	}
 	defer conn.Close()
 	client, err := smtp.NewClient(conn, conf.Host)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error calling smtp.NewClient(): %v", err.Error()))
+		return errors.New(fmt.Sprintf("error calling smtp.NewClient(): %v", err.Error()))
 	}
 	defer client.Close()
 	err = client.Auth(smtp.PlainAuth("", conf.Username, conf.Password, conf.Host))
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error calling SMTP's client.Auth(): %v", err.Error()))
+		return errors.New(fmt.Sprintf("error calling SMTP's client.Auth(): %v", err.Error()))
 	}
 	client.Mail(from)
 	for _, emailAddress := range rcpts {
 		err = client.Rcpt(emailAddress)
 		if err != nil {
-			return "", errors.New(fmt.Sprintf("error calling rcpt(): %v", err.Error()))
+			return errors.New(fmt.Sprintf("error calling rcpt(): %v", err.Error()))
 		}
 	}
 	writer, err := client.Data()
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error calling data(): %v", err.Error()))
+		return errors.New(fmt.Sprintf("error calling data(): %v", err.Error()))
 	}
 	_, err = writer.Write(message)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error calling writer.Close(): %v", err.Error()))
+		return errors.New(fmt.Sprintf("error calling writer.Close(): %v", err.Error()))
 	}
 	writer.Close()
 	err = client.Quit()
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error quiting client: %v", err.Error()))
+		return errors.New(fmt.Sprintf("error quiting client: %v", err.Error()))
 	}
-	return uuid.NewString(), nil
+	return nil
 }
 
 func initiateSMTP(config *SMTPConfig) *smtpDriver {
@@ -146,14 +144,14 @@ func (s *smtpDriver) Send() error {
 		rcpts = append(rcpts, v.String())
 	}
 	from := s.from.String()
-	_, err := s.initiateSend(from, rcpts, message, s)
+	err := s.initiateSend(from, rcpts, message, s)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 	}
 
 	// send to bcc
 	for _, v := range s.bccList {
-		_, err = s.initiateSend(from, []string{v.String()}, message, s)
+		err = s.initiateSend(from, []string{v.String()}, message, s)
 		if err != nil {
 			return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 		}

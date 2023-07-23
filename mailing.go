@@ -54,9 +54,9 @@ func NewMailerWithSparkPost(config *SparkPostConfig) *Mailer {
 }
 
 // Initiate the mailer with SendGrid driver
-func NewMailerWithSendGrid(config *SMTPConfig) *Mailer {
-	// TODO implement
-	return &Mailer{}
+func NewMailerWithSendGrid(config *SendGridConfig) *Mailer {
+	sendGridDriver := initiateSendGrid(config)
+	return &Mailer{driver: sendGridDriver}
 }
 
 // Initiate the mailer with MailGun driver

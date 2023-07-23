@@ -30,10 +30,10 @@ type SparkPostDriver struct {
 	htmlBody       string
 	plainTextBody  string
 	attachments    []Attachment
-	initiateSend   func(from string, rcpts []string, message []byte, conf Driver) (id string, err error)
+	initiateSend   func(from string, rcpts []string, message []byte, conf Driver) error
 }
 
-var initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
+var initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
 	spDriv := d.(*SparkPostDriver)
 	conf := spDriv.config
 	cfg := &gosparkpost.Config{
@@ -42,9 +42,9 @@ var initiateSend = func(from string, rcpts []string, message []byte, d Driver) (
 		ApiVersion: conf.ApiVersion,
 	}
 	var client gosparkpost.Client
-	err = client.Init(cfg)
+	err := client.Init(cfg)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("SparkPost client init failed: %s\n", err))
+		return errors.New(fmt.Sprintf("SparkPost client init failed: %s\n", err))
 	}
 
 	// create the content
@@ -75,12 +75,12 @@ var initiateSend = func(from string, rcpts []string, message []byte, d Driver) (
 		Recipients: rcpts,
 		Content:    content,
 	}
-	id, _, err = client.Send(tx)
+	_, _, err = client.Send(tx)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return id, nil
+	return nil
 }
 
 func initiateSparkPost(config *SparkPostConfig) *SparkPostDriver {
@@ -153,14 +153,14 @@ func (s *SparkPostDriver) Send() error {
 		rcpts = append(rcpts, v.String())
 	}
 	from := s.from.String()
-	_, err := s.initiateSend(from, rcpts, message, s)
+	err := s.initiateSend(from, rcpts, message, s)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 	}
 
 	// send to bcc
 	for _, v := range s.bccList {
-		_, err = s.initiateSend(from, []string{v.String()}, message, s)
+		err = s.initiateSend(from, []string{v.String()}, message, s)
 		if err != nil {
 			return errors.New(fmt.Sprintf("error calling s.initiateSend(): %v", err.Error()))
 		}
