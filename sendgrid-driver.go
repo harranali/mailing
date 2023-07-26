@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/mail"
 	"os"
@@ -75,31 +74,29 @@ var initiateSendGridSend = func(from string, rcpts []string, message []byte, d D
 		c := sgmail.NewContent("text/html", sgDriver.htmlBody)
 		m.AddContent(c)
 	}
+
 	var a *sgmail.Attachment
-	var attachmentFile *os.File
 	var attachementContent []byte
 	var err error
 	for _, v := range sgDriver.attachments {
-		attachmentFile, err = os.Open(v.Path)
+		attachementContent, err = os.ReadFile(v.Path)
 		if err != nil {
 			return err
 		}
-		attachementContent, err = ioutil.ReadAll(attachmentFile)
-		if err != nil {
-			return err
-		}
-		encodedAttachmentbuf := base64.StdEncoding.EncodeToString(attachementContent)
+
+		encodedAttachmentbuf := base64.StdEncoding.EncodeToString([]byte(attachementContent))
 		a = sgmail.NewAttachment()
 		a.SetContent(encodedAttachmentbuf)
+
 		a.SetType(http.DetectContentType(attachementContent))
+
 		a.SetFilename(v.Name)
+
 		a.SetDisposition("attachment")
+
 		m.AddAttachment(a)
-		err = attachmentFile.Close()
-		if err != nil {
-			return err
-		}
 	}
+
 	requestBody := sgmail.GetRequestBody(m)
 
 	request := sendgrid.GetRequest(sgDriver.config.ApiKey, sgDriver.config.Endpoint, sgDriver.config.Host)
@@ -111,9 +108,6 @@ var initiateSendGridSend = func(from string, rcpts []string, message []byte, d D
 		return err
 	}
 
-	// fmt.Println(response.StatusCode)
-	// fmt.Println(response.Body)
-	// fmt.Println(response.Headers)
 	return nil
 }
 
