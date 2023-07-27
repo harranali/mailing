@@ -83,22 +83,16 @@ var initiateSendGridSend = func(from string, rcpts []string, message []byte, d D
 		if err != nil {
 			return err
 		}
-
-		encodedAttachmentbuf := base64.StdEncoding.EncodeToString([]byte(attachementContent))
+		encodedAttachmentbuf := base64.StdEncoding.EncodeToString(attachementContent)
+		fmt.Println(encodedAttachmentbuf)
 		a = sgmail.NewAttachment()
 		a.SetContent(encodedAttachmentbuf)
-
 		a.SetType(http.DetectContentType(attachementContent))
-
 		a.SetFilename(v.Name)
-
 		a.SetDisposition("attachment")
-
 		m.AddAttachment(a)
 	}
-
 	requestBody := sgmail.GetRequestBody(m)
-
 	request := sendgrid.GetRequest(sgDriver.config.ApiKey, sgDriver.config.Endpoint, sgDriver.config.Host)
 	request.Method = "POST"
 	var Body = requestBody
@@ -107,7 +101,6 @@ var initiateSendGridSend = func(from string, rcpts []string, message []byte, d D
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
