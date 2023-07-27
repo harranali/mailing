@@ -15,8 +15,9 @@ import (
 )
 
 type MailGunConfig struct {
-	Domain string // your-domain.com
-	APIKey string // your api key
+	Domain              string // your-domain.com
+	APIKey              string // your api key
+	SkipTLSVerification bool   // (set true for development only!) // true means accepts any tls certificate sent by the domain without verification
 }
 
 type MailGunDriver struct {
@@ -58,6 +59,8 @@ var initiateMailGunSend = func(from string, rcpts []string, message []byte, d Dr
 			m.AddAttachment(v.Path)
 		}
 	}
+	m.SetRequireTLS(true)
+	m.SetSkipVerification(mgDriver.config.SkipTLSVerification)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 	_, _, err := mg.Send(ctx, m)
