@@ -61,6 +61,7 @@ mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
 mailer := mailing.NewMailerWithMailGun(&mailing.MailGunConfig{
 		Domain: "your-domain.com",    // your-domain.com
 		APIKey: "TEST-API-KEY", // your api key
+		SkipTLSVerification true  // (set true for development only!) // true means accepts any tls certificate sent by the domain without verification
 	})
 ```
 
