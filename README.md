@@ -16,13 +16,6 @@
 - Easy integration with [smtp4dev](https://github.com/rnwood/smtp4dev/tree/master) testing server for development
 - Multiple Drivers Support: SMTP, SparkPost, SendGrid and MailGun
 
-## Roadmap
-- [x] SMTP Driver
-- [x] SparkPost Driver
-- [x] SendGrid Driver
-- [ ] MailGun Driver
-
-
 ## Install
 Here is how to add it to your project
 ```go
@@ -44,7 +37,7 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 		},
 	})
 ```
-##### Here is how to use SparkPost Driver 
+##### Here is how to use Spark Post Driver 
 ```go
 // initiating the mailer with SparkPost driver
 mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
@@ -53,13 +46,21 @@ mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
 		ApiVersion: 1,
 	})
 ```
-##### Here is how to use SendGrid Driver 
+##### Here is how to use Send Grid Driver 
 ```go
 // initiating the mailer with SendGrid driver
 	mailer := mailing.NewMailerWithSendGrid(&mailing.SendGridConfig{
 		Host:     "https://api.sendgrid.com",
 		Endpoint: "/v3/mail/send",
 		ApiKey:   "API-KEY-HERE",
+	})
+```
+##### Here is how to use Mail Gun Driver 
+```go
+// initiating the mailer with MailGun driver
+mailer := mailing.NewMailerWithMailGun(&mailing.MailGunConfig{
+		Domain: "your-domain.com",    // your-domain.com
+		APIKey: "TEST-API-KEY", // your api key
 	})
 ```
 
