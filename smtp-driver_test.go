@@ -25,14 +25,14 @@ func TestSMTPDriverSend(t *testing.T) {
 		},
 	})
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
+	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
 		file, err := os.Create(tmpFilePath)
 		if err != nil {
 			t.Error("faild test send")
 		}
 		file.Write(message)
 		file.Close()
-		return uuid.NewString(), nil
+		return nil
 	}
 
 	sDriver.SetFrom(mail.Address{
@@ -121,8 +121,8 @@ func TestSMTPDriverSend(t *testing.T) {
 		t.Error("Failed test send")
 	}
 
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) (id string, err error) {
-		return "", errors.New("this is a test error")
+	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
+		return errors.New("this is a test error")
 	}
 	err = sDriver.Send()
 	if err == nil {

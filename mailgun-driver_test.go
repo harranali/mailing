@@ -12,14 +12,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestSparkPostDriverSend(t *testing.T) {
-	sDriver := initiateSparkPost(&SparkPostConfig{
-		BaseUrl:    "https://api.sparkpost.com",
-		ApiKey:     "test-api-key",
-		ApiVersion: 1,
+func TestMailGunDriverSend(t *testing.T) {
+	mDriver := initiateMailGun(&MailGunConfig{
+		Domain: "localhost",    // your-domain.com
+		APIKey: "TEST-API-KEY", // your api key
 	})
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
+	mDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
 		file, err := os.Create(tmpFilePath)
 		if err != nil {
 			t.Error("faild test send")
@@ -29,26 +28,26 @@ func TestSparkPostDriverSend(t *testing.T) {
 		return nil
 	}
 
-	sDriver.SetFrom(mail.Address{
+	mDriver.SetFrom(mail.Address{
 		Name:    "test from name",
 		Address: "from@mail.com",
 	})
-	sDriver.SetTo([]mail.Address{
+	mDriver.SetTo([]mail.Address{
 		{Name: "test from name1", Address: "from1@mail.com"},
 		{Name: "test from name2", Address: "from2@mail.com"},
 	})
-	sDriver.SetCC([]mail.Address{
+	mDriver.SetCC([]mail.Address{
 		{Name: "test cc name1", Address: "cc1@mail.com"},
 		{Name: "test cc name2", Address: "cc2@mail.com"},
 	})
-	sDriver.SetBCC([]mail.Address{
+	mDriver.SetBCC([]mail.Address{
 		{Name: "test bcc name1", Address: "bcc1@mail.com"},
 		{Name: "test bcc name2", Address: "bcc2@mail.com"},
 	})
-	sDriver.SetSubject("this is the subject")
-	sDriver.SetPlainTextBody("this is plain text body")
-	sDriver.SetHTMLBody("this is html body")
-	sDriver.SetAttachments([]Attachment{
+	mDriver.SetSubject("this is the subject")
+	mDriver.SetPlainTextBody("this is plain text body")
+	mDriver.SetHTMLBody("this is html body")
+	mDriver.SetAttachments([]Attachment{
 		{
 			Name: "attachment name1",
 			Path: "./testingdata/attachment1.md",
@@ -58,7 +57,7 @@ func TestSparkPostDriverSend(t *testing.T) {
 			Path: "./testingdata/attachment2.md",
 		},
 	})
-	err := sDriver.Send()
+	err := mDriver.Send()
 	if err != nil {
 		t.Error("failed testing send")
 	}
@@ -99,9 +98,9 @@ func TestSparkPostDriverSend(t *testing.T) {
 		t.Error("Failed test send")
 	}
 
-	sDriver.SetHTMLBody("")
-	sDriver.SetPlainTextBody("this is plain text body")
-	err = sDriver.Send()
+	mDriver.SetHTMLBody("")
+	mDriver.SetPlainTextBody("this is plain text body")
+	err = mDriver.Send()
 	if err != nil {
 		t.Error("failed testing send")
 	}
@@ -115,10 +114,10 @@ func TestSparkPostDriverSend(t *testing.T) {
 		t.Error("Failed test send")
 	}
 
-	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
+	mDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
 		return errors.New("this is a test error")
 	}
-	err = sDriver.Send()
+	err = mDriver.Send()
 	if err == nil {
 		t.Error("failed testing send")
 	}

@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestSparkPostDriverSend(t *testing.T) {
-	sDriver := initiateSparkPost(&SparkPostConfig{
-		BaseUrl:    "https://api.sparkpost.com",
-		ApiKey:     "test-api-key",
-		ApiVersion: 1,
+func TestSendGridDriverSend(t *testing.T) {
+	sDriver := initiateSendGrid(&SendGridConfig{
+		Host:     "https://api.sendgrid.com",
+		Endpoint: "/v3/mail/send",
+		ApiKey:   "test-api-key",
 	})
 	tmpFilePath := filepath.Join(t.TempDir(), uuid.NewString())
 	sDriver.initiateSend = func(from string, rcpts []string, message []byte, d Driver) error {
