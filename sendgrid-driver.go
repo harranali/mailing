@@ -58,13 +58,6 @@ var initiateSendGridSend = func(from string, rcpts []string, message []byte, d D
 		}
 		p.AddCCs(ccs...)
 	}
-	if len(sgDriver.bccList) != 0 {
-		var bccs []*sgmail.Email
-		for _, v := range sgDriver.bccList {
-			bccs = append(bccs, sgmail.NewEmail(v.Name, v.Address))
-		}
-		p.AddBCCs(bccs...)
-	}
 	m.AddPersonalizations(p)
 	if sgDriver.plainTextBody != "" {
 		c := sgmail.NewContent("text/plain", sgDriver.plainTextBody)

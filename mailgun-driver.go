@@ -33,7 +33,7 @@ type MailGunDriver struct {
 	initiateSend   func(from string, rcpts []string, message []byte, conf Driver) error
 }
 
-var initiateMainGunSend = func(from string, rcpts []string, message []byte, d Driver) error {
+var initiateMailGunSend = func(from string, rcpts []string, message []byte, d Driver) error {
 	mgDriver := d.(*MailGunDriver)
 	mg := mailgun.NewMailgun(mgDriver.config.Domain, mgDriver.config.APIKey)
 	var m *mailgun.Message
@@ -67,13 +67,13 @@ var initiateMainGunSend = func(from string, rcpts []string, message []byte, d Dr
 	return nil
 }
 
-func initiateMainGun(config *SendGridConfig) *SendGridDriver {
-	s := &SendGridDriver{
+func initiateMailGun(config *MailGunConfig) *MailGunDriver {
+	s := &MailGunDriver{
 		config:         config,
 		messageBuilder: newMessageBuilder(),
 		htmlBody:       "",
 		plainTextBody:  "",
-		initiateSend:   initiateMainGunSend,
+		initiateSend:   initiateMailGunSend,
 	}
 
 	return s
