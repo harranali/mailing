@@ -19,7 +19,7 @@
 ## Roadmap
 - [x] SMTP Driver
 - [x] SparkPost Driver
-- [ ] SendGrid Driver
+- [x] SendGrid Driver
 - [ ] MailGun Driver
 
 
@@ -51,6 +51,15 @@ mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
 		BaseUrl:    "https://api.sparkpost.com",
 		ApiKey:     "test-api-key",
 		ApiVersion: 1,
+	})
+```
+##### Here is how to use SendGrid Driver 
+```go
+// initiating the mailer with SendGrid driver
+	mailer := mailing.NewMailerWithSendGrid(&mailing.SendGridConfig{
+		Host:     "https://api.sendgrid.com",
+		Endpoint: "/v3/mail/send",
+		ApiKey:   "API-KEY-HERE",
 	})
 ```
 
