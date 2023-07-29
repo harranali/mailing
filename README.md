@@ -83,7 +83,7 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 // Set the Sender email address
 mailer.SetFrom(mailing.EmailAddress{
         Name: "from name", // name can be set to empty string ("")
-        Address: "from@mail.com"
+        Address: "from@mail.com",
     })
 
 // Set the Recipients email addresses
