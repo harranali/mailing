@@ -49,7 +49,7 @@ mailer := mailing.NewMailerWithSparkPost(&mailing.SparkPostConfig{
 ##### Here is how to use Send Grid Driver 
 ```go
 // initiating the mailer with SendGrid driver
-	mailer := mailing.NewMailerWithSendGrid(&mailing.SendGridConfig{
+mailer := mailing.NewMailerWithSendGrid(&mailing.SendGridConfig{
 		Host:     "https://api.sendgrid.com",
 		Endpoint: "/v3/mail/send",
 		ApiKey:   "API-KEY-HERE",
