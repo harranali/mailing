@@ -40,7 +40,7 @@ mailer := mailing.NewMailerWithSMTP(&mailing.SMTPConfig{
 ##### Here is how to use Spark Post Driver 
 ```go
 // initiating the mailer with SparkPost driver
-mailer := mailing.NewMailerWithSparkPost(&SparkPostConfig{
+mailer := mailing.NewMailerWithSparkPost(&mailing.SparkPostConfig{
 		BaseUrl:    "https://api.sparkpost.com",
 		ApiKey:     "test-api-key",
 		ApiVersion: 1,
